@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Альбом для папы</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Marck+Script&display=swap">
+<style>
+/* Layout: a real photo album - ivory textured card pages, photos held by black corners, stories on notebook sheets, hard pages that turn */
+:root{
+  color-scheme:light;
+  --desk:#ffffff;          /* white backdrop for contrast */
+  --page:#f8f2e0;          /* ivory album card */
+  --ink:#1f3358;           /* dark blue ink */
+  --pen:#2c4f8c;           /* handwriting blue */
+  --sheet:#fdfbf4;
+  --rule:rgba(64,104,170,.32);
+  --margin:rgba(196,84,84,.45);
+  --cloth:#1d2c4e;
+  --gold:#d9bd80;
+  --f-hand:"Marck Script","Segoe Print","Comic Sans MS",cursive;
+  --f-display:"Cormorant","Times New Roman",serif;
+  --fs:15px; --pw:480px; --ph:680px;
+  --paper-tex:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeDiffuseLighting lighting-color='%23fff' surfaceScale='1.8' diffuseConstant='1.05'%3E%3CfeDistantLight azimuth='45' elevation='52'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --mottle:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .02' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .55 0 0 0 0 .45 0 0 0 0 .25 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+}
+html,body{overflow-x:clip}
+body{background:var(--desk);color:var(--ink);font-family:var(--f-hand);min-height:100vh;position:relative}
+.stage{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;padding-block:24px 28px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#pages{display:none}
+
+/* Book */
+.book{position:relative;width:calc(var(--pw)*2);height:var(--ph);perspective:2600px;transition:transform .9s cubic-bezier(.65,.05,.35,1);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.book.at-start{transform:translateX(calc(var(--pw) * -.5))}
+.book.at-end{transform:translateX(calc(var(--pw) * .5))}
+.leaf{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;transform-style:preserve-3d;transition:transform 1s cubic-bezier(.645,.045,.355,1)}
+.leaf.turned{transform:rotateY(-180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.face.back{transform:rotateY(180deg)}
+.face::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,0) 60%)}
+.leaf.moving .face::after{animation:shade 1s ease}
+@keyframes shade{0%,100%{opacity:0}50%{opacity:1}}
+
+/* Single page mode (phones) */
+.book.single{width:var(--pw)}
+.book.single.at-start,.book.single.at-end{transform:none}
+.book.single .leaf{left:0;width:100%}
+.book.single .leaf.turned{opacity:0;transition:transform 1s cubic-bezier(.645,.045,.355,1),opacity .35s ease .6s}
+
+/* Pages */
+.pg{position:absolute;inset:0;background:var(--page);font-size:var(--fs)}
+.pg::before{content:"";position:absolute;inset:0;background-image:var(--paper-tex),var(--mottle);background-size:260px,cover;mix-blend-mode:multiply;opacity:.55;pointer-events:none}
+.face.front .pg{border-radius:0 4px 4px 0;box-shadow:inset 18px 0 22px -14px rgba(60,40,10,.35),0 10px 26px -8px rgba(50,35,10,.45)}
+.face.back .pg{border-radius:4px 0 0 4px;box-shadow:inset -18px 0 22px -14px rgba(60,40,10,.35),0 10px 26px -8px rgba(50,35,10,.45)}
+.book.single .face .pg{border-radius:4px;box-shadow:inset 10px 0 16px -12px rgba(60,40,10,.3),0 10px 26px -8px rgba(50,35,10,.45)}
+.pg.blank{background:var(--page)}
+
+/* Photo pages with black photo corners */
+.photo-wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.1em;padding:8% 9%}
+.mount{position:relative;transform:rotate(var(--t,0deg));max-width:100%}
+.mount img{display:block;max-width:100%;max-height:calc(var(--ph) * .62);width:auto;height:auto;box-shadow:0 2px 5px rgba(40,30,10,.35);filter:sepia(.14) saturate(.9) contrast(.97)}
+.cn{position:absolute;width:calc(var(--fs)*2.1);height:calc(var(--fs)*2.1);filter:drop-shadow(0 1px 1.5px rgba(60,45,20,.38)) drop-shadow(0 0 .5px rgba(60,45,20,.3))}
+.cn.tl{left:-5px;top:-5px;background:linear-gradient(135deg,#ffffff 0,#f1efe8 49.5%,transparent 50%)}
+.cn.tr{right:-5px;top:-5px;background:linear-gradient(225deg,#ffffff 0,#f1efe8 49.5%,transparent 50%)}
+.cn.bl{left:-5px;bottom:-5px;background:linear-gradient(45deg,#fbfaf6 0,#ebe8df 49.5%,transparent 50%)}
+.cn.br{right:-5px;bottom:-5px;background:linear-gradient(315deg,#fbfaf6 0,#ebe8df 49.5%,transparent 50%)}
+.cap{margin:0;font-size:1.45em;line-height:1.25;color:var(--pen);text-align:center;transform:rotate(-1.5deg);max-width:22em;text-wrap:balance}
+
+.penh{position:absolute;width:var(--s);height:var(--s);transform:translate(-50%,-50%) rotate(var(--r));color:var(--pen);opacity:.85}
+.penh svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;overflow:visible}
+
+/* Notebook sheets */
+.sheet{--u:calc(var(--fs) * var(--k,1));--lh:calc(var(--u) * 1.62);
+  position:absolute;inset:5.5% 6.5%;font-size:var(--u);line-height:var(--lh);color:var(--ink);
+  background-color:var(--sheet);transform:rotate(var(--t,0deg));
+  box-shadow:0 1px 2px rgba(40,30,10,.25),0 6px 14px -6px rgba(40,30,10,.35);
+  padding:var(--lh) 1.1em var(--lh) 3.2em;display:flex;flex-direction:column}
+.sheet.lined{background-image:linear-gradient(90deg,transparent 2.35em,var(--margin) 2.35em,var(--margin) calc(2.35em + 1px),transparent calc(2.35em + 1px)),
+  repeating-linear-gradient(180deg,transparent 0 calc(var(--lh) - 1px),var(--rule) calc(var(--lh) - 1px) var(--lh));
+  background-position:0 0,0 calc(var(--u) * -.3)}
+.sheet.grid{padding-left:1.6em;background-image:repeating-linear-gradient(90deg,transparent 0 calc(var(--lh)/2 - 1px),var(--rule) calc(var(--lh)/2 - 1px) calc(var(--lh)/2)),
+  repeating-linear-gradient(180deg,transparent 0 calc(var(--lh)/2 - 1px),var(--rule) calc(var(--lh)/2 - 1px) calc(var(--lh)/2))}
+.sheet.dense{--k:.86}
+.head{display:flex;align-items:center;justify-content:space-between;gap:.6em;height:calc(var(--lh)*2);flex:none}
+.head h2{margin:0;font-weight:400;font-size:1.55em;line-height:1.1;color:var(--pen);text-wrap:balance;min-width:0}
+.txt{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin}
+.txt p{margin:0;text-indent:1.4em}
+.txt p.thanks{color:var(--pen);text-indent:0;margin-top:var(--lh)}
+.txt .quote{color:var(--pen)}
+.note{display:block;padding-top:calc(var(--lh)*2)}
+.note p{margin:0 0 var(--lh)}
+.note .sig,.letter .sig{text-align:right;color:var(--pen)}
+.letter .txt p{text-indent:0;margin-bottom:var(--lh)}
+.letter .head{height:var(--lh)}
+
+.listen{flex:none;display:inline-flex;align-items:center;gap:.45em;padding:.15em .75em .15em .25em;border:1px solid var(--pen);border-radius:999px;background:rgba(255,255,255,.6);
+  color:var(--pen);font:inherit;font-size:.95em;line-height:1.5;cursor:pointer}
+.listen .ic{width:1.5em;height:1.5em;border-radius:50%;background:var(--pen);color:#fdfbf4;display:grid;place-items:center;font-size:.6em;font-family:system-ui,sans-serif}
+.listen.playing{background:var(--pen);color:#fdfbf4}
+.listen.playing .ic{background:#fdfbf4;color:var(--pen)}
+.listen:focus-visible,.nav button:focus-visible{outline:2px solid var(--pen);outline-offset:3px}
+
+/* End page */
+.endnote{display:grid;place-items:center}
+.endnote p{margin:0;font-size:2.1em;color:var(--pen);text-align:center;transform:rotate(-3deg);line-height:1.3}
+.endnote span{display:block;font-size:.55em;opacity:.75}
+.titlepage p{font-size:2.6em}
+.titlepage span{font-size:.6em;margin-top:.3em;font-family:var(--f-display)}
+
+/* Covers - soft mint cloth, photo slipped into a clear film pocket, upright serif title */
+.pg.cover{background:var(--cover,#b5d3e8)}
+.pg.cover::before{background-image:var(--paper-tex),repeating-linear-gradient(0deg,rgba(255,255,255,.07) 0 1px,transparent 1px 3px),repeating-linear-gradient(90deg,rgba(20,45,80,.06) 0 1px,transparent 1px 3px);
+  background-size:260px,auto,auto;mix-blend-mode:multiply;opacity:.45}
+.front-cover .cloth{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1em;padding:9% 8%}
+.cv-photo{position:relative;width:80%;padding:.8em;border-radius:2px;background:rgba(255,255,255,.16);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.65),inset 0 0 14px rgba(255,255,255,.25),0 1px 1px rgba(20,50,45,.18),0 8px 18px -10px rgba(20,50,45,.45)}
+.cv-photo::before{content:"";position:absolute;inset:.32em;border:1px solid rgba(255,255,255,.45);pointer-events:none}
+.cv-photo img{display:block;box-sizing:border-box;width:100%;height:auto;border:.3em solid #fbfaf5;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.cv-photo::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:2px;
+  background:linear-gradient(118deg,rgba(255,255,255,.5) 0%,rgba(255,255,255,.12) 22%,rgba(255,255,255,0) 34%,rgba(255,255,255,0) 64%,rgba(255,255,255,.22) 72%,rgba(255,255,255,0) 80%)}
+.front-cover h1{margin:.4em 0 0;font-family:var(--f-display);font-style:normal;font-weight:700;font-size:3.3em;line-height:.86;text-align:center;color:#1f3358;letter-spacing:.005em}
+.front-cover .from{margin:0;font-family:var(--f-hand);font-size:1.75em;color:#1f3358;opacity:.85;transform:rotate(-2deg)}
+.back-cover .cloth{position:absolute;inset:0;display:grid;place-items:center}
+.back-note{margin:0;font-family:var(--f-hand);font-size:1.8em;color:#1f3358;text-align:center;transform:rotate(-2deg)}
+
+.hearts{position:absolute;inset:0;pointer-events:none}
+.hrt{position:absolute;width:var(--s);height:var(--s);background:var(--c);transform:translate(-50%,-50%) rotate(var(--r));
+  -webkit-mask:var(--heart) center/contain no-repeat;mask:var(--heart) center/contain no-repeat;filter:drop-shadow(0 1px 1px rgba(30,50,80,.25))}
+.front-cover .cloth{--heart:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21.5 10.3 20C4.4 14.6.5 11.1.5 6.8.5 3.3 3.2.5 6.7.5c2 0 3.9.9 5.3 2.4C13.4 1.4 15.3.5 17.3.5c3.5 0 6.2 2.8 6.2 6.3 0 4.3-3.9 7.8-9.8 13.2z'/%3E%3C/svg%3E")}
+.front-cover .cv-photo,.front-cover h1,.front-cover .from{position:relative}
+.from .mini{color:#e06f86;font-family:system-ui,sans-serif;font-size:.6em;vertical-align:.15em}
+
+/* Controls */
+.nav{display:flex;align-items:center;gap:18px;color:var(--ink)}
+.nav button{width:46px;height:46px;border-radius:50%;border:1px solid rgba(31,51,88,.35);background:rgba(255,255,255,.45);color:var(--ink);font-size:22px;line-height:1;cursor:pointer;font-family:var(--f-display)}
+.nav button:disabled{opacity:.3;cursor:default}
+.counter{font-family:var(--f-hand);font-size:19px;min-width:10em;text-align:center}
+.hint{margin:0;font-size:15px;color:rgba(31,51,88,.7);text-align:center}
+@media (prefers-reduced-motion:reduce){.leaf,.book{transition-duration:.01s!important}.leaf.moving .face::after{animation:none}}
+</style>
+
+<div class="stage">
+  <div class="book" id="book" aria-live="polite"></div>
+  <div class="nav">
+    <button type="button" id="prev" aria-label="Предыдущая страница">‹</button>
+    <span class="counter" id="counter">обложка</span>
+    <button type="button" id="next" aria-label="Следующая страница">›</button>
+  </div>
+  <p class="hint">Нажмите на страницу или смахните, чтобы перелистнуть. У каждой истории есть кнопка «послушать».</p>
+</div>
+
+<div id="pages">
+<div class="pg cover front-cover"><div class="cloth">
+  <div class="hearts" aria-hidden="true"><i class="hrt" style="left:14%;top:12%;--s:2.2em;--r:-14deg;--c:#fffaf3"></i><i class="hrt" style="left:22%;top:7%;--s:1.1em;--r:10deg;--c:#e98a9b"></i><i class="hrt" style="left:80%;top:10%;--s:1.5em;--r:12deg;--c:#e98a9b"></i><i class="hrt" style="left:88%;top:17%;--s:0.9em;--r:-8deg;--c:#fffaf3"></i><i class="hrt" style="left:84%;top:20.5%;--s:2.6em;--r:14deg;--c:#e06f86"></i><i class="hrt" style="left:91%;top:27%;--s:1.2em;--r:-10deg;--c:#fffaf3"></i><i class="hrt" style="left:12%;top:54%;--s:1.3em;--r:-12deg;--c:#e98a9b"></i><i class="hrt" style="left:8%;top:60%;--s:0.8em;--r:8deg;--c:#fffaf3"></i><i class="hrt" style="left:90%;top:58%;--s:1.0em;--r:10deg;--c:#fffaf3"></i><i class="hrt" style="left:14%;top:86%;--s:1.8em;--r:-10deg;--c:#e98a9b"></i><i class="hrt" style="left:22%;top:91%;--s:1.0em;--r:12deg;--c:#fffaf3"></i><i class="hrt" style="left:85%;top:88%;--s:2.0em;--r:12deg;--c:#fffaf3"></i><i class="hrt" style="left:77%;top:93%;--s:1.0em;--r:-8deg;--c:#e98a9b"></i></div>
+  <div class="cv-photo"><img src="img/cover.jpg" alt=""></div>
+  <h1>Любимому<br>папе</h1>
+  <p class="from">от Настёны <span class="mini">♥</span></p>
+</div></div>
+<div class="pg endpaper"></div>
+<div class="pg text"><div class="sheet lined note" style="--t:-1.5deg">
+  <p>Пап,</p><p>это маленький альбом ко Дню отца. Здесь истории, которые я помню всю жизнь, и фотографии, где мы вместе.</p><p>У каждой истории есть кнопка «послушать» - это я сама их тебе рассказываю.</p><p class="sig">Твоя Настёна</p></div></div>
+<div class="pg photo"><i class="penh" style="left:12%;top:10%;--s:2em;--r:-12deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:1.68deg"><img src="img/sea.jpg" alt="Маленькая Настя на надувном дельфине, папа рядом в воде"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Я на дельфине, ещё не умею плавать</p></div></div>
+<div class="pg text"><div class="sheet lined dense" style="--t:-1.2deg">
+  <div class="head"><h2>Папино терпение</h2><button class="listen" type="button" data-src="audio/01.mp3" aria-label="Послушать запись: Папино терпение"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Папа учил меня кататься на велосипеде, когда мы были в Белоруссии. Учил старательно и спокойно. Помню, как у меня наконец начало получаться: я ехала с горки, папа что-то крикнул мне вслед, я обернулась - и то ли налетела на камень, то ли не успела затормозить. Перелетела через руль и проехалась лбом по асфальту. А потом увидела, что у папы тоже кровь на подбородке. До сих пор не знаю, откуда она взялась, но мне кажется, тогда папа волновался даже сильнее, чем я.</p><p>Ещё папа учил меня плавать. Не знаю, откуда у человека столько терпения. Плавать я научилась только к шестнадцати годам - когда папа решил, что мне пора в бассейн, и начал брать меня с собой на свои тренировки.</p><p>А кататься на лыжах папа научил меня, когда я была уже взрослой. В Камне-на-Оби мы вместе ходили на лыжню, и он терпеливо объяснял, как правильно ехать. До этого я лыжи ненавидела, а тогда мне вдруг понравилось.</p><p class="thank">Пап, спасибо тебе за твоё терпение.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:85%;top:87%;--s:5em;--r:6deg"><svg viewBox="0 0 48 48"><circle cx="24" cy="20" r="12"/><ellipse cx="24" cy="20" rx="5" ry="12"/><path d="M12.5 17h23M13 24h22"/><path d="M9 21a15 15 0 0 0 27 9"/><path d="M24 35v5M17 42h14"/></svg></i><i class="penh" style="left:12%;top:12%;--s:1.8em;--r:10deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:-1.4deg"><img src="img/home.jpg" alt="Папа, мама и Настя дома"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Мы втроём</p></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:1deg">
+  <div class="head"><h2>Когда папа дома</h2><button class="listen" type="button" data-src="audio/02.mp3" aria-label="Послушать запись: Когда папа дома"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>В детстве я очень многого боялась, как и все дети: темноты, монстров, злых людей - чего я только не боялась. И однажды мама сказала мне: <span class="quote">«Знаешь, у нас есть папа. Когда папа дома, можно ничего не бояться - он нас от всего защитит. Папа самый сильный, папа надёжный, и с папой нам ничего не страшно».</span></p><p>С тех пор мне никогда не было страшно, если папа был дома. Или если я просто знала, что он где-то рядом.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:88%;top:9%;--s:4.6em;--r:-8deg"><svg viewBox="0 0 48 48"><g><path d="M8 4v18h20c3 0 4-3 2-5-3-2-9-3-11-7l-2-6z"/><path d="M10 8h6M10 12h7M10 16h8"/><path d="M9 22v4M27 22v4M5 27h25c2 0 3-1 3-3"/></g><g transform="translate(14 17)"><path d="M8 4v18h20c3 0 4-3 2-5-3-2-9-3-11-7l-2-6z"/><path d="M10 8h6M10 12h7M10 16h8"/><path d="M9 22v4M27 22v4M5 27h25c2 0 3-1 3-3"/></g></svg></i><i class="penh" style="left:10%;top:90%;--s:2em;--r:8deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:1.1199999999999999deg"><img src="img/rink.jpg" alt="Настя, папа и мама на катке"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">На катке, за папу держимся</p></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:-0.8deg">
+  <div class="head"><h2>Папа заступился</h2><button class="listen" type="button" data-src="audio/03.mp3" aria-label="Послушать запись: Папа заступился"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Помню, как однажды несла маме флешку, а на меня накричал дежурный по части. Я шла домой и ревела. Папа встретил меня в дверях и сразу начал спрашивать, что случилось. Я всё рассказала, а он отправил меня есть мороженое и успокаиваться - а сам позвонил тому дежурному и как следует на него наорал.</p><p>Тогда я впервые по-настоящему поняла, каково это, когда за тебя заступаются. Когда тебя безусловно любит папа. Мне было так приятно.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:13%;top:11%;--s:5em;--r:-4deg"><svg viewBox="0 0 48 48"><path d="M24 5L13 18h6L9 30h8L5 42h38L31 30h8L29 18h6z"/><path d="M21 42v4h6v-4"/><path d="M24 1l1 2.6 2.8.2-2.2 1.7.8 2.7L24 6.6l-2.4 1.6.8-2.7-2.2-1.7 2.8-.2z"/><circle cx="20" cy="24" r="1.3"/><circle cx="29" cy="34" r="1.5"/><circle cx="17" cy="37" r="1.3"/></svg></i><i class="penh" style="left:88%;top:90%;--s:1.8em;--r:-10deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:-1.8199999999999998deg"><img src="img/school.jpg" alt="Настя-подросток с папой и мамой на празднике"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Отмечаем Новый год</p></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:1.3deg">
+  <div class="head"><h2>Математика и физика</h2><button class="listen" type="button" data-src="audio/04.mp3" aria-label="Послушать запись: Математика и физика"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Когда я не понимала математику или физику, я всегда шла к папе. Он брал мои учебники, читал, наверное, вспоминал тему, сам во всём разбирался - а потом объяснял мне. Я совсем не технарь, и понимала я с большим трудом и далеко не с первого раза. Но папина выдержка и его упорство в том, чтобы объяснить мне то, что до меня никак не доходило, до сих пор вызывают у меня огромную благодарность и восхищение.</p><p class="thank">Пап, это благодаря тебе я хорошо закончила школу.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:88%;top:90%;--s:4.2em;--r:8deg"><svg viewBox="0 0 48 48"><path d="M15 34V11l15-4v23"/><path d="M15 15l15-4"/><ellipse cx="11.5" cy="34.5" rx="4" ry="3" transform="rotate(-20 11.5 34.5)"/><ellipse cx="26.5" cy="30.5" rx="4" ry="3" transform="rotate(-20 26.5 30.5)"/></svg></i><i class="penh" style="left:10%;top:8%;--s:1.8em;--r:-8deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:1.9599999999999997deg"><img src="img/car.jpg" alt="Папа за рулём, Настя рядом"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Когда папа за рулём, ничего не страшно</p></div></div>
+<div class="pg text"><div class="sheet lined dense" style="--t:-1.4deg">
+  <div class="head"><h2>Музыкалка и «Король и Шут»</h2><button class="listen" type="button" data-src="audio/06.mp3" aria-label="Послушать запись: Музыкалка и «Король и Шут»"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Музыкальную школу я ненавидела. В обычной школе у меня никогда не было проблем, а вот в музыкалку однажды вызвали родителей. Забирал меня тогда папа, и я сказала ему, что ему нужно сходить к учительнице. Думала, будет ругаться. А он вернулся, сел в машину и смеялся: <span class="quote">«Ты чего там ничего не учишь?»</span> - «Да задолбала меня эта пьеса, она дурацкая». - <span class="quote">«Ну, Настя, ну надо выучить».</span> - «Ну ладно, выучу».</p><p>Я её выучила. И потом заняла с ней первое место на конкурсе.</p><p>А ещё, когда папа забирал меня из музыкалки, мы всегда включали «Короля и Шута», и я во всё горло орала эти песни. Одно из самых любимых моих детских воспоминаний: Мурманск, уже тёплый май, папа забирает меня из музыкалки, я открываю окно, мы едем по Кильдинке, тёплый ветер треплет волосы - и мы вдвоём орём «Куклу колдуна».</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:12%;top:89%;--s:4.4em;--r:-6deg"><svg viewBox="0 0 48 48"><rect x="9" y="21" width="30" height="22" rx="1"/><rect x="7" y="15" width="34" height="6" rx="1"/><path d="M24 15v28"/><path d="M24 15c-5-8-13-7-10-2 2 3 10 2 10 2zM24 15c5-8 13-7 10-2-2 3-10 2-10 2z"/></svg></i><i class="penh" style="left:90%;top:8%;--s:2em;--r:12deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:-1.26deg"><img src="img/newyear.jpg" alt="Папа, мама и Настя у ёлки в пижамах"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Новый год в пижамах</p></div></div>
+<div class="pg text"><div class="sheet lined dense" style="--t:0.9deg">
+  <div class="head"><h2>Просто побыть рядом</h2><button class="listen" type="button" data-src="audio/07.mp3" aria-label="Послушать запись: Просто побыть рядом"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Помню, как в детстве мы приехали в отпуск в Тулу и начали собирать пазлы - сначала маленькие коробочки. Нас так затянуло, что я по нескольку раз в день бегала до ларька за новыми: побольше, ещё побольше. По-моему, мы весь тот отпуск собирали пазлы. Это было такое наше семейное занятие, и это было очень здорово.</p><p>В детстве я часто приходила посмотреть, как папа играет в свои игры на компьютере. Я ничего не понимала - мне просто нравилось сидеть рядом. Наверное, это был мой способ быть ближе. А когда мне было двенадцать, в одном из отпусков в Туле папа научил меня играть в «Героев». Мы обсуждали игру, папа объяснял, как выстраивать стратегию, как накопить вампиров и воевать только ими.</p><p>Ещё помню, как совсем маленькой сидела у папы на плечах в Мирском замке в Беларуси, и мы смотрели реконструкцию какого-то сражения. А когда папа смотрел фильмы, я любила забираться к нему на спину и делать массаж.</p><p>Когда мне было семь, папа уехал в Чечню - по-моему, на полгода. Я тогда, конечно, почти ничего не понимала, но очень сильно скучала. И как же я радовалась, когда он вернулся и привёз мне мягкого игрушечного енота, который смешно ржал.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:84%;top:8%;--s:4.1em;--r:-3deg"><svg viewBox="0 0 48 48"><path d="M30 12h12v18H30z"/><path d="M28 10h16"/><path d="M33 15h6v6h-6z"/><path d="M8 18h22v12H8z"/><path d="M11 18v-7h5v7"/><path d="M8 30l-4 4"/><circle cx="13" cy="33" r="3.5"/><circle cx="24" cy="33" r="3.5"/><circle cx="36" cy="33" r="3.5"/><path d="M2 39h44"/><path d="M12 7c-3-2 0-5 3-3 1-3 6-2 5 1 3 0 3 4 0 4"/></svg></i><i class="penh" style="left:10%;top:90%;--s:1.8em;--r:-10deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:1.4deg"><img src="img/summer.jpg" alt="Настя обнимает папу на перроне"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Папа провожает на поезд</p></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:-1deg">
+  <div class="head"><h2>Чего хочешь ты сама</h2><button class="listen" type="button" data-src="audio/08.mp3" aria-label="Послушать запись: Чего хочешь ты сама"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Когда мне нужно было решить, поступать в Питер или ехать с Ильёй в Тюмень, я совсем не понимала, как будет правильно, чего я хочу и что мне делать. Я спрашивала совета у всех, у кого только можно, - а те, у кого не спрашивала, почему-то давали советы сами. Понятнее от этого не становилось. Все рассуждали очень рационально: как лучше, как правильнее.</p><p>И только папа спросил: <span class="quote">«А что сделает тебя счастливой? Чего ты хочешь сама?»</span></p><p>Для меня это стало открытием на всю жизнь. Важно, чего хочу я сама. И вообще важно задавать себе этот вопрос. До этого, кажется, никто в таких ситуациях не спрашивал, чего хочу я.</p></div></div></div>
+<div class="pg photo"><i class="penh" style="left:15%;top:11%;--s:4.6em;--r:-5deg"><svg viewBox="0 0 48 48"><rect x="5" y="13" width="38" height="26" rx="4"/><rect x="9" y="17" width="24" height="18" rx="3"/><circle cx="38" cy="21" r="1.8"/><circle cx="38" cy="28" r="1.8"/><path d="M19 13L13 3M27 13l6-9"/><path d="M12 39l-2 5M36 39l2 5"/><path d="M12 21c2-1 4-1 5 0"/></svg></i><i class="penh" style="left:86%;top:88%;--s:2.1em;--r:-10deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><i class="penh" style="left:79%;top:93%;--s:1.1em;--r:12deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><i class="penh" style="left:90%;top:10%;--s:1.4em;--r:8deg"><svg viewBox="0 0 26 24"><path d="M13 21.5C7 17 2.2 13 2.4 8.4 2.6 4.6 6.6 2.8 9.6 4.6c1.6 1 2.7 2.6 3.3 4.3.7-1.9 2-3.6 3.8-4.5 3.2-1.6 6.8.6 6.8 4.3 0 4.6-4.6 8.5-10.4 12.8"/><path d="M13.4 21c-5-3.9-9.6-7.6-9.7-11.9"/></svg></i><div class="photo-wrap">
+  <div class="mount" style="--t:-1.68deg"><img src="img/evening.jpg" alt="Папа и мама за новогодним столом при свече"><i class="cn tl"></i><i class="cn tr"></i><i class="cn bl"></i><i class="cn br"></i></div>
+  <p class="cap">Ждём курантов</p></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:1.2deg">
+  <div class="head"><h2>Пиво, сухарики и кино</h2><button class="listen" type="button" data-src="audio/09.mp3" aria-label="Послушать запись: Пиво, сухарики и кино"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>С папой классно пить пиво, болтать и смотреть фильмы.</p><p>Помню, как однажды в апреле приехала в Воркуту присмотреть за собаками - тогда то мама, то папа по очереди лежали в госпитале. Я как-то посоветовала папе один фильм. И вот то ли я проснулась, то ли просто услышала, что он его смотрит, - зашла, и мы досматривали вместе. Мне было так приятно, что папе понравилось то, что я посоветовала.</p><p>А потом папа посоветовал фильм мне. Мы купили пиво и сухарики, смотрели «Туриста» с Джонни Деппом и Анджелиной Джоли и всё обсуждали. Это было очень круто и очень тепло.</p></div></div></div>
+<div class="pg text"><div class="sheet lined dense" style="--t:-1deg">
+  <div class="head"><h2>Когда я болела</h2><button class="listen" type="button" data-src="audio/05.mp3" aria-label="Послушать запись: Когда я болела"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Я часто болела. Знаю, что мама очень волновалась, и знаю, что папа всегда её поддерживал - хотя сам переживал ничуть не меньше.</p><p>Помню, как у меня был пиелонефрит и папа повёз меня в город на УЗИ. Живот болел невероятно, мне было по-настоящему плохо. Я растянулась на заднем сиденье и буквально стонала. А папа вёл машину и - наверное, в ужасно неудобной позе - протягивал руку назад, чтобы держать меня за руку всю дорогу.</p><p>А когда у меня был язвенный колит и меня выписали из больницы, мамы дома не было - то ли она была на сутках, то ли куда-то уехала, уже не помню. И папа встретил меня словами: <span class="quote">«Я там тебе суп сварил, иди попробуй».</span> Это был рисовый суп, очень вкусный. Папа потом почему-то отрицал и говорил, что не было такого. Но я-то помню.</p><p>Я знаю, что папа всегда находил деньги, время и возможность, чтобы купить мне лекарства, отвезти на процедуры, оплатить врачей. Чтобы я ни в чём не нуждалась.</p></div></div></div>
+<div class="pg text"><div class="sheet lined" style="--t:-0.9deg">
+  <div class="head"><h2>Фотоаппарат</h2><button class="listen" type="button" data-src="audio/10.mp3" aria-label="Послушать запись: Фотоаппарат"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Когда мне исполнялось четырнадцать, вам несколько месяцев не платили зарплату. А я тогда очень увлеклась фотографией и мечтала о настоящей профессиональной зеркалке. И ещё о собаке. Мы договорились, что фотоаппарат будет подарком сразу на несколько праздников и что купите вы его, когда выплатят зарплату, - может, и не прямо на день рождения.</p><p>Но ровно в день рождения меня ждал фотоаппарат. И ещё - собака.</p><p>Я до сих пор не знаю, как вы это сделали. Наверное, влезли в долги. Но я знаю, что тогда я чувствовала себя по-настоящему счастливой. И я вам очень благодарна.</p></div></div></div>
+<div class="pg text"><div class="sheet lined letter" style="--t:0.7deg">
+  <div class="head"><span></span><button class="listen" type="button" data-src="audio/11.mp3" aria-label="Послушать письмо"><span class="ic">▶</span>послушать</button></div>
+  <div class="txt"><p>Пап,</p><p>я очень тебя люблю. Я очень благодарна, что ты у меня есть. И очень хочу, чтобы ты был здоров и счастлив.</p><p>Спасибо, что ты сделал моё детство спокойным и счастливым. Спасибо, что ты рядом - и в трудные, и в счастливые моменты. Спасибо, что ты всегда на моей стороне. И за то, что я знаю: ты всегда на моей стороне.</p><p class="ig">Твоя Настёна</p></div></div></div>
+<div class="pg endnote"><p>С Днём отца, пап!<span>октябрь 2026</span></p></div>
+<div class="pg cover back-cover"><div class="cloth"><p class="back-note">С Днём отца, пап ♡</p></div></div>
+</div>
+
+<script>
+(function(){
+  var src=[].slice.call(document.querySelectorAll('#pages > .pg'));
+  var book=document.getElementById('book'), prev=document.getElementById('prev'), next=document.getElementById('next'), counter=document.getElementById('counter');
+  var root=document.documentElement, leaves=[], state=0, single=null;
+  var audio=new Audio(), curBtn=null;
+
+  function size(){
+    var W=window.innerWidth, H=window.innerHeight, pw, ph, fs, s=W<760;
+    if(!s){ var avW=Math.min(W-32,1180)/2, avH=H-150; pw=Math.max(300,Math.min(avW,avH*0.706)); ph=pw/0.706; fs=pw/32; }
+    else { pw=W-32; ph=Math.max(pw*1.25,Math.min(H-150,pw*1.72)); fs=Math.max(13,pw/26.5); }
+    root.style.setProperty('--pw',pw+'px'); root.style.setProperty('--ph',ph+'px'); root.style.setProperty('--fs',fs+'px');
+    return s;
+  }
+  function face(node,side){ var f=document.createElement('div'); f.className='face '+side; f.appendChild(node); return f; }
+  function blank(){ var d=document.createElement('div'); d.className='pg blank'; return d; }
+  function build(s){
+    book.innerHTML=''; leaves=[]; book.classList.toggle('single',s);
+    if(!s){ for(var i=0;i<src.length;i+=2){ var l=document.createElement('div'); l.className='leaf';
+        l.appendChild(face(src[i].cloneNode(true),'front')); l.appendChild(face(src[i+1]?src[i+1].cloneNode(true):blank(),'back')); leaves.push(l); book.appendChild(l);} }
+    else { src.forEach(function(p){ var l=document.createElement('div'); l.className='leaf';
+        l.appendChild(face(p.cloneNode(true),'front')); l.appendChild(face(blank(),'back')); leaves.push(l); book.appendChild(l); }); }
+    bindAudio();
+  }
+  function layout(){
+    var n=leaves.length;
+    leaves.forEach(function(l,i){ var t=i<state; l.classList.toggle('turned',t); if(!l.classList.contains('moving')) l.style.zIndex=t?(i+1):(n-i); });
+    book.classList.toggle('at-start',state===0); book.classList.toggle('at-end',state===n);
+    prev.disabled=state===0; next.disabled=state===n;
+    var last=single?n-1:n;
+    counter.textContent= state===0?'обложка': state>=last?'конец альбома': single?('страница '+state+' из '+(n-2)):('разворот '+state+' из '+(n-1));
+  }
+  function flip(d){
+    var n=leaves.length, ns=state+d; if(ns<0||ns>n) return;
+    var l=leaves[d>0?state:state-1]; l.classList.add('moving'); l.style.zIndex=n+10;
+    state=ns; layout();
+    clearTimeout(l._t); l._t=setTimeout(function(){ l.classList.remove('moving'); layout(); },1050);
+  }
+  function bindAudio(){
+    book.querySelectorAll('.listen').forEach(function(b){
+      if(curBtn && b.dataset.src===curBtn.dataset.src && !audio.paused){ mark(b,true); curBtn=b; }
+      b.addEventListener('click',function(e){ e.stopPropagation();
+        var srcAttr=b.dataset.src;
+        if(curBtn===b && !audio.paused){ audio.pause(); mark(b,false); return; }
+        if(curBtn) mark(curBtn,false);
+        if(audio.getAttribute('src')!==srcAttr){ audio.src=srcAttr; }
+        curBtn=b; audio.play().then(function(){mark(b,true);}).catch(function(){mark(b,false);});
+      });
+    });
+  }
+  function mark(b,on){ b.classList.toggle('playing',on); b.querySelector('.ic').textContent=on?'❚❚':'▶'; }
+  audio.addEventListener('ended',function(){ if(curBtn) mark(curBtn,false); });
+
+  function init(){
+    var s=size();
+    if(s!==single){ var old=single; single=s;
+      if(old===false && s) state=Math.max(0,2*state-1);
+      else if(old===true && !s) state=Math.floor((state+1)/2);
+      build(s); }
+    state=Math.min(state,leaves.length); layout();
+  }
+  init();
+  var rt; window.addEventListener('resize',function(){ clearTimeout(rt); rt=setTimeout(init,150); });
+
+  var swiped=false, sx=0, sy=0;
+  book.addEventListener('touchstart',function(e){ var t=e.touches[0]; sx=t.clientX; sy=t.clientY; swiped=false; },{passive:true});
+  book.addEventListener('touchend',function(e){ var t=e.changedTouches[0], dx=t.clientX-sx, dy=t.clientY-sy;
+    if(Math.abs(dx)>40 && Math.abs(dx)>Math.abs(dy)*1.3){ swiped=true; flip(dx<0?1:-1); } });
+  book.addEventListener('click',function(e){
+    if(swiped){ swiped=false; return; }
+    if(e.target.closest('button')) return;
+    var r=book.getBoundingClientRect(), x=e.clientX-r.left;
+    if(single) flip(x>r.width*0.35?1:-1);
+    else if(state===0) flip(1);
+    else if(state===leaves.length) flip(-1);
+    else flip(x>r.width/2?1:-1);
+  });
+  prev.addEventListener('click',function(){flip(-1);});
+  next.addEventListener('click',function(){flip(1);});
+  document.addEventListener('keydown',function(e){ if(e.key==='ArrowRight') flip(1); if(e.key==='ArrowLeft') flip(-1); });
+})();
+</script>
+
+</body>
+</html>
